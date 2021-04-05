@@ -16,28 +16,34 @@ class MakeSquare(object):
         self.robot_movement_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
     def side_turn(self):
-
+        # make the robot go straight for a given amount of time
+        # before making a 90 degree left-hand turn
         rospy.sleep(1)
         r = rospy.Rate(.1)
 
+        # setup the twist message we want to send
         my_path = Twist()
         start_time = time.time()
         my_path.linear.x = .1
         my_path.angular.z = 0
+        # measure the amount of time that has elapsed since starting this "edge"
+        # of the square, stopping once 10 seconds have passed
         while time.time() - start_time < 10: 
             rospy.sleep(1)
             self.robot_movement_pub.publish(my_path)
 
         start_time2 = time.time()
+        # stop movement forward and turn left
         my_path.linear.x = 0
-        my_path.angular.z = 30*3.1415926/180
-        if True: 
-            rospy.sleep(1)
-            self.robot_movement_pub.publish(my_path)
+        my_path.angular.z = 30*3.1415926/180 #converting to radians
+        rospy.sleep(1)
+        # make turn
+        self.robot_movement_pub.publish(my_path)
         rospy.sleep(1)
 
     def run(self):
-        # setup the Twist message we want to send
+        # have robot repeat movements indefinitely,
+        # thus moving in a square
         while not rospy.is_shutdown():
             self.side_turn()
 
