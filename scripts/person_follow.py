@@ -7,7 +7,7 @@ from geometry_msgs.msg import Vector3
 # msg needed for /scan.
 from sensor_msgs.msg import LaserScan
 
-# How close we will get to wall.
+# How close we will get to person.
 distance = 0.4
 
 class Follower:
@@ -22,29 +22,23 @@ class Follower:
                 self.twist = Twist()
 
         def image_callback(self, data):
-
-                
-                #cv2.circle(image, (5, 5), 20, (0,0,255), -1)
+        # Sense and pursue person
                 angle_count = 0
                 min_distance, min_angle = 500, 0
                 if data.ranges[0] > 500:
+                        #If there's nothing in front of robot,
                         min_angle = numpy.argmin(data.ranges)
-                        #while (angle_count < 360 and data.ranges[angle_count] > 500):
-                        #        angle_count = angle_count + 1
-                        #        if data.ranges[angle_count] < min_distance: 
-                        #                min_distance = data.ranges[angle_count]
-                        #                min_angle = angle_count
                         self.twist.linear.x = 0
                         self.twist.angular.z = (min_angle*3.14159265/180)/3
                         self.twist_pub.publish(self.twist)
                 else:
                         if data.ranges[angle_count] > distance:
-                                # Go forward if not close enough to wall.
+                                # If further than distance from person, keep approaching
                                 self.twist.linear.x = 0.1
                                 self.twist.angular.z = 0
                                 self.twist_pub.publish(self.twist)
                         else:
-                                # Close enough to wall, stop.
+                                # Close enough to person, stop
                                 self.twist.linear.x = 0
                                 self.twist.angular.z = 0
                                 self.twist_pub.publish(self.twist)

@@ -25,20 +25,22 @@ class Follower:
 
         def image_callback(self, data):
                 angle_count = 0
-                #echo("/cmd_vel")
                 min_angle = numpy.argmin(data.ranges)
                 if (min_angle > 273 or min_angle <= 268) or (data.ranges[min_angle] > distance):# and data.ranges[min_angle] > distance:
+                        #If wall is not to the right or robot is further than distance from wall
                         min_angle = numpy.argmin(data.ranges)
-                        #if min_angle == 0 and data.ranges[min_angle] > distance:
                         if data.ranges[min_angle] >= distance: 
+                        # If robot further than distance frmo wall, move forward
                             self.twist.linear.x = 0.2
                             self.twist.angular.z = 0
                             self.twist_pub.publish(self.twist)
-                        elif min_angle < 15 or min_angle > 345: 
+                        elif min_angle < 15 or min_angle > 345:
+                        # If wall in front, turn 
                             self.twist.linear.x = 0
                             self.twist.angular.z = 30*3.14159265/180
                             self.twist_pub.publish(self.twist)
                         elif min_angle < 273: 
+                        # If angle between robot and wall too small, adjust
                             self.twist.linear.x = 0
                             #current_angle = 0 
                             #if True: #while(current_angle < 5):
@@ -47,11 +49,12 @@ class Follower:
                             self.twist.angular.z = -3*3.14159265/180
                             self.twist_pub.publish(self.twist)
                         else:  
+                        # If angle between robot and wall too large, adjust
                             self.twist.linear.x = 0
                             self.twist.angular.z = 3*3.14159265/180
                             self.twist_pub.publish(self.twist)
                 else:
-                        if data.ranges[0] > distance+.4: #data.ranges[0] > distance+.05:
+                        if data.ranges[0] > distance+.4: 
                                 # Go forward if not close enough to wall.
                                 self.twist.linear.x = 0.2
                                 self.twist.angular.z = 0
